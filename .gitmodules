@@ -10,3 +10,6 @@
 [submodule "shinysdr/deps/measviz"]
 	path = shinysdr/deps/measviz
 	url = https://github.com/kpreid/measviz/
+[submodule "shinysdr/deps/geodesy"]
+	path = shinysdr/deps/geodesy
+	url = https://github.com/chrisveness/geodesy
