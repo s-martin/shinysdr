@@ -184,6 +184,10 @@ def _put_root_static(wcommon, container_resource):
         client.putChild(name, _make_static_resource(os.path.join(deps_path, name)))
     for name in ['measviz.js', 'measviz.css']:
         client.putChild(name, _make_static_resource(os.path.join(deps_path, 'measviz/src', name)))
+    geodesy = SlashedResource()
+    client.putChild('geodesy', geodesy)
+    for name in ['latlon-spherical.js', 'dms.js']:
+        geodesy.putChild(name, _make_static_resource(os.path.join(deps_path, 'geodesy', name)))
     
     # Link deps into /test/.
     test = container_resource.children['test']

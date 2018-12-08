@@ -28,7 +28,16 @@
 </head><body>
   <script>
     require.config({
-      baseUrl: '/client/'
+      baseUrl: '/client/',
+      shim: {
+        'geodesy/latlon-spherical': {
+	  deps: ['geodesy/dms'],
+	  exports: 'LatLon',
+        },
+        'geodesy/dms': {
+	  exports: 'Dms',
+        },
+      },
     });
     
     requirejs(['network', '/test/jasmine-glue.js',], (network, {ji, start}) => {

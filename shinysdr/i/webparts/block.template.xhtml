@@ -47,6 +47,15 @@
   'use strict';
   requirejs.config({
     baseUrl: "/client",
+    shim: {
+      'geodesy/latlon-spherical': {
+	deps: ['geodesy/dms'],
+	exports: 'LatLon',
+      },
+      'geodesy/dms': {
+	exports: 'Dms',
+      },
+    },
   });
   requirejs(['main'], function (main) {
     main({
