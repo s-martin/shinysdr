@@ -19,10 +19,12 @@
   
 define([
   'require',
+  'geodesy/latlon-spherical',
   './types',
   './values',
 ], (
   require,
+  LatLon,
   import_types,
   import_values
 ) => {
@@ -36,6 +38,7 @@ define([
     ConstantCell,
     LocalCell,
     StorageCell,
+    findImplementersInBlockCell,
     makeBlock,
   } = import_values;
   
@@ -115,7 +118,32 @@ define([
       // (This will require knowledge of retuning which is currently done implicitly on the server side.)
       
       if (record) {
+        // TODO: The server really needs to track the selected record because both the source and the record can move, and something needs to constantly recalculate the bearing and drive the rotator.
+        // TODO: Provide a way for the user to disable this (e.g. in EME).
         selectedRecord.set(record);
+        if (record.location) {
+          const componentsCell = radio.source.get().components;
+          const positionedDevices = findImplementersInBlockCell(
+            undefined,
+            componentsCell,
+            'shinysdr.devices.IPositionedDevice').get();
+          const rotators = findImplementersInBlockCell(
+            undefined,
+            componentsCell,
+            'shinysdr.plugins.hamlib.IRotator').get();
+          if (positionedDevices.length && rotators.length) {
+            const track = positionedDevices[0].track.get();
+            const start = new LatLon(track.latitude.value, track.longitude.value);
+            let bearing = start.bearingTo(new LatLon(record.location[0], record.location[1]));
+            rotators.forEach(rotator => {
+              // TODO: It doesn't seem like I should have to do this here; the azimuth cell should know how to unwrap bearings.
+              if (bearing > rotator.Azimuth.type.getMax()) {
+                bearing -= 360;
+              }
+              rotator.Azimuth.set(bearing);
+            });
+          }
+        }
       }
       
       return receiver;
