@@ -19,6 +19,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import StringIO
 import os
 
 import six
@@ -48,9 +49,9 @@ from shinysdr.twisted_ext import FactoryWithArgs
 from shinysdr.values import SubscriptionContext
 
 
-def _make_static_resource(pathname):
+def _make_static_resource(pathname, cls=static.File):
     # str() because if we happen to pass unicode as the pathname then directory listings break (discovered with Twisted 16.4.1).
-    r = static.File(str(pathname),
+    r = cls(str(pathname),
         defaultType=b'text/plain',
         ignoredExts=[b'.html'])
     r.contentTypes[b'.csv'] = b'text/csv'
@@ -172,6 +173,66 @@ class WebService(Service):
             self.__log.info('Visit {url}', url=url)
 
 
+class ConcatenatedReaders(object):
+    def __init__(self, files):
+        self.__files = files
+        self.__current_file = 0
+    
+    def seek(self, offset):
+        for i, f in enumerate(self.__files):
+            f.seek(0, os.SEEK_END)
+            length = f.tell()
+            if offset > length:
+                offset -= length
+                continue
+            f.seek(offset, os.SEEK_SET)
+            self.__current_file = i
+            return
+    
+    def read(self, n=-1):
+        out = defaultstr("")
+        while n != 0 and self.__current_file < len(self.__files):
+            part = self.__files[self.__current_file].read(n)
+            out += part
+            if n < 0 or len(part) < n:
+                self.__current_file += 1
+                if self.__current_file < len(self.__files):
+                    self.__files[self.__current_file].seek(0, os.SEEK_SET)
+            n -= len(part)
+        return out
+    
+    def close(self):
+        for f in self.__files:
+            f.close()
+
+
+class WrappedStaticFile(static.File):
+    prefix = ""
+    suffix = ""
+
+    def openForReading(self):
+        f = self.open()
+        return ConcatenatedReaders([
+            StringIO.StringIO(defaultstr(self.prefix)),
+            f,
+            StringIO.StringIO(defaultstr(self.suffix)),
+        ])
+
+    def getFileSize(self):
+        return len(self.prefix) + self.getsize() + len(self.suffix)
+
+
+class CommonJSStaticFile(WrappedStaticFile):
+    """
+    Serves a CommonJS-style source file with a RequireJS wrapper.
+    """
+    prefix = """define(function (require, exports, module) {
+"""
+    suffix = """
+});
+"""
+
+
 def _put_root_static(wcommon, container_resource):
     """Place all the simple resources, that are not necessarily sourced from files but at least are unchanging and public."""
     
@@ -184,6 +245,12 @@ def _put_root_static(wcommon, container_resource):
         client.putChild(name, _make_static_resource(os.path.join(deps_path, name)))
     for name in ['measviz.js', 'measviz.css']:
         client.putChild(name, _make_static_resource(os.path.join(deps_path, 'measviz/src', name)))
+    geodesy = SlashedResource()
+    client.putChild('geodesy', geodesy)
+    for name in ['latlon-spherical.js', 'dms.js']:
+        geodesy.putChild(name, _make_static_resource(
+            os.path.join(deps_path, 'geodesy', name),
+            CommonJSStaticFile))
     
     # Link deps into /test/.
     test = container_resource.children['test']
