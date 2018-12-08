@@ -19,6 +19,7 @@
 
 define([
   'require',
+  'geodesy/latlon-spherical',
   '../domtools',
   '../events',
   '../gltools',
@@ -34,6 +35,7 @@ define([
   'text!./curves-f.glsl',
 ], (
   require,
+  LatLon,
   import_domtools,
   import_events,
   import_gltools,
@@ -91,7 +93,6 @@ define([
   const {
     cos,
     sin,
-    asin,
     atan2
   } = Math;
   
@@ -100,10 +101,10 @@ define([
   // Degree trig functions.
   // We use degrees in this module because degrees are standard for latitude and longitude, and are also useful for more exact calculations because 360 is exactly representable as a floating-point number whereas 2π is not.
   // TODO: Look at the edge cases and see if it would be useful to have dcos & dsin do modulo 360, so we get that exactness for them.
-  var RADIANS_PER_DEGREE = Math.PI / 180;
+  const RADIANS_PER_DEGREE = Math.PI / 180;
+  const DEGREES_PER_RADIAN = 180 / Math.PI;
   function dcos(x) { return cos(RADIANS_PER_DEGREE * x); }
   function dsin(x) { return sin(RADIANS_PER_DEGREE * x); }
-  function dasin(x) { return asin(x)/RADIANS_PER_DEGREE; }
   function datan2(x, y) { return atan2(x, y)/RADIANS_PER_DEGREE; }
   
   function mean(array) {
@@ -1692,17 +1693,10 @@ define([
   const smoothStep = 1;
   function greatCircleLineAlong(lat, lon, bearing) {
     const line = [];
-    const sinlat = dsin(lat), coslat = dcos(lat);
-    const sinazimuth = dsin(bearing), cosazimuth = dcos(bearing);
+    const start = new LatLon(lat, lon);
     for (let angle = 0; angle < 180 + smoothStep/2; angle += smoothStep) {
-      // Algorithm adapted from https://github.com/chrisveness/geodesy/blob/v1.1.2/latlon-spherical.js#L212
-      const targetLat = dasin(
-        sinlat*dcos(angle) +
-          coslat*dsin(angle)*cosazimuth);
-      const targetLon = lon + datan2(
-        sinazimuth*dsin(angle)*coslat,
-        dcos(angle)-sinlat*dsin(targetLat));
-      line.push(Object.freeze({position: Object.freeze([targetLat, targetLon])}));
+      const point = start.destinationPoint(angle, bearing, DEGREES_PER_RADIAN);
+      line.push(Object.freeze({position: Object.freeze([point.lat, point.lon])}));
     }
     return Object.freeze(line);
   }
