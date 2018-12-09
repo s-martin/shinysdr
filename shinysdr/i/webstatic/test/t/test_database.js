@@ -18,8 +18,8 @@
 'use strict';
 
 define([
-  '/test/jasmine-glue.js',
-  '/test/testutil.js',
+  'test/jasmine-glue',
+  'test/testutil',
   'database',
   'events',
 ], (

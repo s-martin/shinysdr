@@ -18,7 +18,7 @@
 'use strict';
 
 define([
-  '/test/jasmine-glue.js',
+  'test/jasmine-glue',
   'audio/analyser',
   'audio/bufferer',
   'audio/client-source',

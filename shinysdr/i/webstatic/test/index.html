@@ -28,16 +28,19 @@
 </head><body>
   <script>
     require.config({
-      baseUrl: '/client/'
+      baseUrl: '/client/',
+      paths: {
+        'test': '/test',
+      },
     });
-    
-    requirejs(['network', '/test/jasmine-glue.js',], (network, {ji, start}) => {
+
+    requirejs(['network', 'test/jasmine-glue',], (network, {ji, start}) => {
       network.externalGet('t/', 'document').then(indexDoc => {
         const testUrls = [];
         Array.prototype.forEach.call(indexDoc.querySelectorAll('a[href]'), anchor => {
-          var url = anchor.href;
-          if (/\/test_.*\.js$/.test(url)) {
-            testUrls.push(url);
+          var url = anchor.getAttribute('href');
+          if (/^test_.*\.js$/.test(url)) {
+            testUrls.push('test/t/' + url);
           }
         });
         requirejs(testUrls, (...results) => {
