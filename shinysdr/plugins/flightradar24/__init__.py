@@ -21,6 +21,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from collections import namedtuple
 import json
 import os.path
 
@@ -140,19 +141,35 @@ class IAircraft(Interface):
     pass
 
 
+FlightInfo = namedtuple('FlightInfo', [
+    'callsign',  # ICAO ATC call signature
+    'registration',
+    'origin',  # airport IATA code
+    'destination',  # airport IATA code
+    'flight',
+    'squawk_code',  # https://en.wikipedia.org/wiki/Transponder_(aeronautics)
+    'model',  # ICAO aircraft type designator
+])
+
+
+empty_flight_info = FlightInfo(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+)
+
+
 @implementer(IAircraft, ITelemetryObject)
 class Aircraft(ExportedState):
     def __init__(self, object_id):
         """Implements ITelemetryObject. object_id is the hex formatted address."""
         self.__last_heard_time = None
         self.__track = empty_track
-        self.__callsign = None
-        self.__registration = None
-        self.__origin = None
-        self.__destination = None
-        self.__flight = None
-        self.__squawk_code = None
-        self.__model = None
+        self.__flight_info = empty_flight_info
     
     # not exported
     def receive(self, message_wrapper):
@@ -205,13 +222,15 @@ class Aircraft(ExportedState):
             self.__track = self.__track._replace(**new)
         
         self.__last_heard_time = timestamp
-        self.__callsign = callsign
-        self.__registration = registration
-        self.__origin = origin
-        self.__destination = destination
-        self.__flight = flight
-        self.__squawk_code = squawk_code
-        self.__model = model
+        self.__flight_info = FlightInfo(
+            callsign=callsign,
+            registration=registration,
+            origin=origin,
+            destination=destination,
+            flight=flight,
+            squawk_code=squawk_code,
+            model=model,
+        )
         self.state_changed()
     
     def is_interesting(self):
@@ -222,8 +241,8 @@ class Aircraft(ExportedState):
         return \
             self.__track.latitude.value is not None or \
             self.__track.longitude.value is not None or \
-            self.__call is not None or \
-            self.__aircraft_type is not None
+            self.__flight_info.callsign is not None or \
+            self.__flight_info.registration is not None
     
     def get_object_expiry(self):
         """implement ITelemetryObject"""
@@ -233,33 +252,9 @@ class Aircraft(ExportedState):
     def get_last_heard_time(self):
         return self.__last_heard_time
     
-    @exported_value(type=six.text_type, changes='explicit', sort_key='020', label='Callsign')
-    def get_callsign(self):
-        return self.__callsign
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='030', label='Registration')
-    def get_registration(self):
-        return self.__registration
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='040', label='Origin')
-    def get_origin(self):
-        return self.__origin
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='050', label='Destination')
-    def get_destination(self):
-        return self.__destination
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='060', label='Flight')
-    def get_flight(self):
-        return self.__flight
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='070', label='Squawk Code')
-    def get_squawk_code(self):
-        return self.__squawk_code
-    
-    @exported_value(type=six.text_type, changes='explicit', sort_key='080', label='Model')
-    def get_model(self):
-        return self.__model
+    @exported_value(type=FlightInfo, changes='explicit', sort_key='020')
+    def get_flight_info(self):
+        return self.__flight_info
     
     @exported_value(type=Track, changes='explicit', sort_key='010', label='')
     def get_track(self):
