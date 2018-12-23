@@ -301,6 +301,7 @@ define([
       update(value, draw);
     });
   }
+  exports.SimpleElementWidget = SimpleElementWidget;
   
   function Generic(config) {
     SimpleElementWidget.call(this, config, undefined,

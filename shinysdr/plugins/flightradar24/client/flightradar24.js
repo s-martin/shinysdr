@@ -33,15 +33,47 @@ define([
     renderTrackFeature,
   } = import_map_core;
   const {
+    SimpleElementWidget,
     Block,
   } = import_widgets_basic;
   
   const exports = {};
+
+  function FlightInfoWidget(config) {
+    SimpleElementWidget.call(this, config, 'DIV',
+      function buildPanelForFlightInfo(container) {
+        return container.appendChild(document.createElement('DIV'));
+      },
+      function initEl(valueEl, target) {
+        /*
+          BOX451 / 3S451 (JFK / FRA)
+          B77L D-AALB
+          Squawk 1714
+        */
+        function addDiv() {
+          let div = valueEl.appendChild(document.createElement('div'));
+          let textNode = document.createTextNode('');
+          div.appendChild(textNode);
+          return textNode;
+        }
+        var row1 = addDiv();
+        var row2 = addDiv();
+        var row3 = addDiv();
+        return function updateEl(flight_info) {
+          row1.data = `${flight_info.callsign} / ${flight_info.flight}`;
+          if (flight_info.origin || flight_info.destination) {
+            row1.data += ` (${flight_info.origin || '???'} / ${flight_info.destination || '???'})`;
+          }
+          row2.data = `${flight_info.model} ${flight_info.registration}`;
+          row3.data = `Squawk ${flight_info.squawk_code}`;
+        };
+      });
+  }
   
   function AircraftWidget(config) {
     Block.call(this, config, function (block, addWidget, ignore, setInsertion, setToDetails, getAppend) {
       addWidget('track', widgets.TrackWidget);
-      // TODO: More compact rendering of cells.
+      addWidget('flight_info', FlightInfoWidget);
     }, false);
   }
   
@@ -52,10 +84,11 @@ define([
     mapPluginConfig.addLayer('flightradar24', {
       featuresCell: mapPluginConfig.index.implementing('shinysdr.plugins.flightradar24.IAircraft'),
       featureRenderer: function renderAircraft(aircraft, dirty) {
-        var trackCell = aircraft.track;
-        var callsign = aircraft.callsign.depend(dirty);
-        var ident = aircraft.squawk_code.depend(dirty);
-        var altitude = trackCell.depend(dirty).altitude.value;
+        let trackCell = aircraft.track;
+        let flight_info = aircraft.flight_info.depend(dirty);
+        let callsign = flight_info.callsign;
+        let ident = flight_info.squawk_code;
+        let altitude = trackCell.depend(dirty).altitude.value;
         var labelParts = [];
         if (callsign !== null) {
           labelParts.push(callsign.replace(/^ | $/g, ''));
