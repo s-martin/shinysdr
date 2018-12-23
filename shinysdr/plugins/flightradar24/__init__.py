@@ -49,28 +49,31 @@ _CM_PER_INCH = 2.54
 _INCH_PER_FOOT = 12
 _METERS_PER_FEET = (_CM_PER_INCH * _INCH_PER_FOOT) / 100
 _FEET_PER_MINUTE_TO_METERS_PER_SECOND = _METERS_PER_FEET * 60
+_BASE_URL = 'https://data-live.flightradar24.com/zones/fcgi/feed.js?faa=1&mlat=1&flarm=1&adsb=1&gnd=0&air=1&vehicles=0&estimated=1&maxage=14400&gliders=1&stats=0'
 
 
-# TODO: This really shouldn't be a Device, but that's the only way right now to hook into the config.
-def Flightradar24(reactor, key='flightradar24', bounds=None):
+def Flightradar24(reactor, key='flightradar24', bounds=None, base_url=_BASE_URL):
     """Create a flightradar24 client.
 
     key: Component ID.
     bounds: optional 4-element tuple of (lat1, lat2, lon1, lon2) to restrict search
+    base_url: optional URL to override the source of the data feed
     """
     return Device(components={six.text_type(key): _Flightradar24Client(
         reactor=reactor,
-        bounds=bounds)})
+        bounds=bounds,
+        base_url=base_url)})
 
 
 @implementer(IComponent)
 class _Flightradar24Client(ExportedState):
-    def __init__(self, reactor, bounds):
+    def __init__(self, reactor, bounds, base_url=_BASE_URL):
         self.__reactor = reactor
         self.__agent = Agent(reactor)
         self.__bounds = bounds
         self.__device_contexts = []
         self.__loop = None
+        self.__url = URL.fromText(base_url)
 
     @exported_value(type=bool, changes='this_setter', label='Enabled')
     def get_enabled(self):
@@ -96,7 +99,7 @@ class _Flightradar24Client(ExportedState):
         self.__device_contexts.append(device_context)
 
     def __make_url(self):
-        u = URL.fromText('https://data-live.flightradar24.com/zones/fcgi/feed.js?faa=1&mlat=1&flarm=1&adsb=1&gnd=0&air=1&vehicles=0&estimated=1&maxage=14400&gliders=1&stats=0')
+        u = self.__url
         if self.__bounds:
             u = u.set('bounds', ','.join(str(b) for b in self.__bounds))
         return six.binary_type(u.asText())
