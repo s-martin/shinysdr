@@ -418,7 +418,7 @@ class Top(gr.top_block, ExportedState, RecursiveLockBlockMixin):
         self._do_connect()
     
     def _recursive_lock_hook(self):
-        for source in self._sources.itervalues():
+        for source in six.itervalues(self._sources):
             source.notify_reconnecting_or_restarting()
 
 
