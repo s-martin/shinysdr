@@ -416,7 +416,7 @@ def http_get(reactor, url, accept=None):
 
 def http_head(reactor, url, accept=None):
     return (http_request(reactor, url, method='HEAD', accept=accept)
-        .addCallback(lambda (response, data): response))
+        .addCallback(lambda result: result[0]))
 
 
 def http_post_json(reactor, url, value):
