@@ -20,7 +20,10 @@
 
 import os.path
 import subprocess
-import urllib
+try:
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import urlretrieve
 
 from setuptools import find_packages, setup, Command
 from setuptools.command.build_py import build_py
@@ -47,7 +50,7 @@ class DownloadAssets(Command):
                 print('skipping downloading {}, already exists'.format(destination_path))
             else:
                 print('downloading {} to {}'.format(source_url, destination_path))
-                urllib.urlretrieve(source_url, destination_path)
+                urlretrieve(source_url, destination_path)
 
 
 class InitGitSubModules(Command):
