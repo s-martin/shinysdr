@@ -155,7 +155,7 @@ class Top(gr.top_block, ExportedState, RecursiveLockBlockMixin):
                     break
         
         if len(self._receivers) > 0:
-            arbitrary = six.itervalues(self._receivers).next()
+            arbitrary = next(six.itervalues(self._receivers))
             defaults = arbitrary.state_to_json()
         else:
             defaults = self.receiver_default_state
