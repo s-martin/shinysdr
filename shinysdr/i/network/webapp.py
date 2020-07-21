@@ -19,6 +19,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from struct import pack
 import os
 
 import six
@@ -48,6 +49,34 @@ from shinysdr.i.shared_test_objects import SHARED_TEST_OBJECTS_CAP
 from shinysdr.interfaces import _IClientResourceDef
 from shinysdr.twisted_ext import FactoryWithArgs
 from shinysdr.values import SubscriptionContext
+
+
+# txWS is unfortunately dead upstream, and has buggy Python 3 support.
+# On Python 3, upstream txWS can't properly encode frames larger than
+# 0x7d bytes. Monkey-patch the function here with a 2+3 compatible
+# implementation.
+def make_hybi07_frame(buf, opcode=0x1):
+    """
+    Make a HyBi-07 frame.
+
+    This function always creates unmasked frames, and attempts to use the
+    smallest possible lengths.
+    """
+
+    if len(buf) > 0xffff:
+        length = b"\x7f%s" % pack(">Q", len(buf))
+    elif len(buf) > 0x7d:
+        length = b"\x7e%s" % pack(">H", len(buf))
+    else:
+        length = six.int2byte(len(buf))
+
+    if isinstance(buf, six.text_type):
+        buf = buf.encode('utf-8')
+
+    # Always make a normal packet.
+    header = six.int2byte(0x80 | opcode)
+    return header + length + buf
+txws.make_hybi07_frame = make_hybi07_frame
 
 
 def _make_static_resource(pathname):
