@@ -159,7 +159,7 @@ class _StateStreamObjectRegistration(object):
         
         # Decrement refcounts of old (or existing) references.
         refs = self.__previous_references
-        refs.sort()  # ensure determinism
+        refs.sort(key=id)  # ensure determinism
         for obj in refs:
             if obj not in self.__ssi._registered_objs:
                 raise Exception("Shouldn't happen: previous value not registered", obj)
@@ -194,7 +194,7 @@ class _StateStreamObjectRegistration(object):
             
             # capture refs to decrement
             refs = self.__previous_references
-            refs.sort()  # ensure determinism
+            refs.sort(key=id)  # ensure determinism
             
             # drop previous value
             self.__set_previous_references({})
