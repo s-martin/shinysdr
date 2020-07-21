@@ -186,11 +186,11 @@ class _DbIndexResource(resource.Resource):
         self.__instantiate = instantiate
     
     def render_GET(self, request):
-        request.setHeader(b'Content-Type', b'application/json')
+        request.setHeader(b'Content-Type', b'application/json; charset=utf-8')
         return json.dumps({
             u'records': self.__database.records,
             u'writable': self.__database.writable
-        })
+        }).encode('utf-8')
     
     def render_POST(self, request):
         desc = json.load(request.content)
@@ -211,7 +211,7 @@ class _DbIndexResource(resource.Resource):
         request.setResponseCode(http.CREATED)
         request.setHeader(b'Content-Type', b'text/plain')
         request.setHeader(b'Location', url)
-        return url
+        return url.encode()
 
 
 class _RecordResource(resource.Resource):
@@ -223,11 +223,11 @@ class _RecordResource(resource.Resource):
         self.__record = record
     
     def render_GET(self, request):
-        request.setHeader(b'Content-Type', b'application/json')
-        return json.dumps(self.__record)
+        request.setHeader(b'Content-Type', b'application/json; charset=utf-8')
+        return json.dumps(self.__record).encode('utf-8')
     
     def render_POST(self, request):
-        assert request.getHeader(b'Content-Type') == b'application/json'
+        assert request.getHeader(b'Content-Type') == b'application/json; charset=utf-8'
         if not self.__database.writable:
             request.setResponseCode(http.FORBIDDEN)
             request.setHeader(b'Content-Type', b'text/plain')
