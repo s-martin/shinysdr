@@ -66,7 +66,7 @@ class PersistenceFileGlue(object):
             root_object.state_from_json(state_json)
             # make a backup in case this code version misreads the state and loses things on save (but only if the load succeeded, in case the file but not its backup is bad)
             # TODO: should automatically use backup if main file is missing or broken
-            shutil.copyfile(filename, filename + b'~')
+            shutil.copyfile(filename, filename + '~')
         else:
             apply_defaults()
         
