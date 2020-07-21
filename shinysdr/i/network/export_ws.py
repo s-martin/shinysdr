@@ -376,7 +376,7 @@ class WebSocketDispatcherProtocol(Protocol):
         self.__log.info('Stream connection to {url}', url=self.transport.location)
         _scheme, _netloc, path_bytes, _params, query_bytes, _fragment = urlparse(bytes_or_ascii(self.transport.location))
         # py2/3: unquote returns str in either version but we want Unicode
-        path = [six.text_type(urllib.parse.unquote(x)) for x in path_bytes.split(b'/')]
+        path = [six.ensure_text(urllib.parse.unquote(six.ensure_str(x))) for x in path_bytes.split(b'/')]
 
         # parse fixed elements of path
         # TODO: generally better error reporting, maybe use twisted's Resource dispatch???
