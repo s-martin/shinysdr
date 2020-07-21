@@ -140,10 +140,10 @@ class DatabasesResource(resource.Resource):
     
     def __init__(self, databases):
         resource.Resource.__init__(self)
-        self.putChild('', ElementRenderingResource(_DbsIndexListElement(self)))
+        self.putChild(b'', ElementRenderingResource(_DbsIndexListElement(self)))
         self.names = []
         for (name, database) in six.iteritems(databases):
-            self.putChild(name, DatabaseResource(database))
+            self.putChild(name.encode(), DatabaseResource(database))
             self.names.append(name)
         self.names.sort()  # TODO reconsider case/locale
 
@@ -170,9 +170,9 @@ class DatabaseResource(resource.Resource):
         resource.Resource.__init__(self)
         
         def instantiate(rkey):
-            self.putChild(str(rkey), _RecordResource(database, database.records[rkey]))
+            self.putChild(str(rkey).encode(), _RecordResource(database, database.records[rkey]))
         
-        self.putChild('', _DbIndexResource(database, instantiate))
+        self.putChild(b'', _DbIndexResource(database, instantiate))
         for rkey in database.records:
             instantiate(rkey)
 

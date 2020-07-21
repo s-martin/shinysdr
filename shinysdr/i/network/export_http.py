@@ -71,7 +71,7 @@ class BlockResource(Resource):
                 if cell.type().is_reference():
                     self._blockCells[key] = cell
                 else:
-                    self.putChild(key, ValueCellResource(cell, self.__wcommon))
+                    self.putChild(key.encode(), ValueCellResource(cell, self.__wcommon))
         self.__element = _BlockHtmlElement(wcommon)
     
     def getChild(self, path, request):

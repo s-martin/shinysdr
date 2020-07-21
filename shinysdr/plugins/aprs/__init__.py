@@ -709,8 +709,8 @@ def _parse_telemetry_value(facts, errors, value_str, channel):
 
 
 _plugin_resource = static.File(os.path.join(os.path.split(__file__)[0], 'client'))
-_plugin_resource.putChild('symbols', static.File(os.path.join(os.path.split(shinysdr.__file__)[0], 'deps/aprs-symbols/png')))
-_plugin_resource.putChild('symbol-index', static.File(os.path.join(os.path.split(shinysdr.__file__)[0], 'deps/aprs-symbol-index/generated/symbols.dense.json')))
+_plugin_resource.putChild(b'symbols', static.File(os.path.join(os.path.split(shinysdr.__file__)[0], 'deps/aprs-symbols/png')))
+_plugin_resource.putChild(b'symbol-index', static.File(os.path.join(os.path.split(shinysdr.__file__)[0], 'deps/aprs-symbol-index/generated/symbols.dense.json')))
 
 plugin_client_js = ClientResourceDef(
     key=__name__,

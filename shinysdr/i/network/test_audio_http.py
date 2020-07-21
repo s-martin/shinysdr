@@ -38,8 +38,8 @@ class TestAudioStreamResource(unittest.TestCase):
     
     def setUp(self):
         tree = Resource()
-        tree.putChild('mono', AudioStreamResource(_FakeSession(1)))
-        tree.putChild('stereo', AudioStreamResource(_FakeSession(2)))
+        tree.putChild(b'mono', AudioStreamResource(_FakeSession(1)))
+        tree.putChild(b'stereo', AudioStreamResource(_FakeSession(2)))
         self.port = the_reactor.listenTCP(0, SiteWithDefaultHeaders(tree), interface="127.0.0.1")  # pylint: disable=no-member
 
     def tearDown(self):
