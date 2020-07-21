@@ -302,8 +302,8 @@ class MonitorSink(gr.hier_block2, ExportedState):
         # It would make slightly more sense to use unsigned chars, but blocks.float_to_uchar does not support vlen.
         self.__fft_converter = blocks.float_to_char(vlen=self.__freq_resolution, scale=1.0)
         
-        fft_sink = self.__fft_cell.create_sink_internal(numpy.dtype((numpy.int8, output_length)))
-        scope_sink = self.__scope_cell.create_sink_internal(numpy.dtype(('c8', self.__time_length)))
+        self.__fft_sink = self.__fft_cell.create_sink_internal(numpy.dtype((numpy.int8, output_length)))
+        self.__scope_sink = self.__scope_cell.create_sink_internal(numpy.dtype(('c8', self.__time_length)))
         scope_chunker = blocks.stream_to_vector_decimator(
             item_size=gr.sizeof_gr_complex,
             sample_rate=sample_rate,
@@ -324,15 +324,15 @@ class MonitorSink(gr.hier_block2, ExportedState):
                 logarithmizer)
             if self.__after_fft is not None:
                 self.connect(logarithmizer, self.__after_fft)
-                self.connect(self.__after_fft, self.__fft_converter, fft_sink)
+                self.connect(self.__after_fft, self.__fft_converter, self.__fft_sink)
                 self.connect((self.__after_fft, 1), blocks.null_sink(gr.sizeof_float * self.__freq_resolution))
             else:
-                self.connect(logarithmizer, self.__fft_converter, fft_sink)
+                self.connect(logarithmizer, self.__fft_converter, self.__fft_sink)
             if self.__enable_scope:
                 self.connect(
                     self.__gate,
                     scope_chunker,
-                    scope_sink)
+                    self.__scope_sink)
         finally:
             self.__context.unlock()
     
