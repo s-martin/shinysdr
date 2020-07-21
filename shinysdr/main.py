@@ -31,7 +31,7 @@ from twisted.application.service import IService, MultiService
 from twisted.internet import defer
 from twisted.internet import reactor as singleton_reactor
 from twisted.internet.task import react
-from twisted.logger import Logger, STDLibLogObserver, globalLogBeginner
+from twisted.logger import Logger, STDLibLogObserver, globalLogBeginner, textFileLogObserver
 
 # Note that gnuradio-dependent modules are loaded later, to avoid the startup time if all we're going to do is give a usage message
 from shinysdr.i.config import Config, ConfigException, write_default_config, execute_config, print_config_exception
@@ -180,7 +180,13 @@ def _check_versions():
 
 def configure_logging():
     logging.basicConfig(level=logging.INFO)
-    globalLogBeginner.beginLoggingTo([STDLibLogObserver(name='shinysdr')])
+    observer = STDLibLogObserver(name='shinysdr')
+    if sys.version_info > (3, 8):
+        # STDLibLogObserver is incompatible with Python 3.8
+        observer = textFileLogObserver(sys.stderr)
+    globalLogBeginner.beginLoggingTo(
+        [observer],
+        redirectStandardIO=False)
 
 
 if __name__ == '__main__':
