@@ -139,8 +139,8 @@ class WebServiceCommon(object):
         else:
             return endpoint_string_to_url(
                 self.__ws_endpoint_string,
-                hostname=request.getRequestHostname(),
-                scheme=b'ws',
+                hostname=six.ensure_str(request.getRequestHostname()),
+                scheme='ws',
                 path=path)
 
 
