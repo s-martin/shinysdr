@@ -75,15 +75,16 @@ class BlockResource(Resource):
         self.__element = _BlockHtmlElement(wcommon)
     
     def getChild(self, path, request):
+        name = path.decode()
         if self._dynamic:
             curstate = self._block.state()
-            if path in curstate:
-                cell = curstate[path]
+            if name in curstate:
+                cell = curstate[name]
                 if cell.type().is_reference():
-                    return self.__getBlockChild(path, cell.get())
+                    return self.__getBlockChild(name, cell.get())
         else:
-            if path in self._blockCells:
-                return self.__getBlockChild(path, self._blockCells[path].get())
+            if name in self._blockCells:
+                return self.__getBlockChild(name, self._blockCells[name].get())
         # old-style-class super call
         return Resource.getChild(self, path, request)
     
@@ -102,7 +103,7 @@ class BlockResource(Resource):
         return BlockResource(block, self.__wcommon, deleter)
     
     def render_GET(self, request):
-        accept = request.getHeader('Accept')
+        accept = request.getHeader(b'Accept')
         if accept is not None and b'application/json' in accept:  # TODO: Implement or obtain correct Accept interpretation
             request.setHeader(b'Content-Type', b'application/json')
             return serialize(self.__describe_block()).encode('utf-8')
@@ -118,7 +119,7 @@ class BlockResource(Resource):
         assert request.getHeader(b'Content-Type') == b'application/json'
         reqjson = json.load(request.content)
         key = block.create_child(reqjson)  # note may fail
-        url = request.prePathURL() + defaultstr('/receivers/') + urllib.parse.quote(key, safe='')
+        url = six.ensure_text(request.prePathURL()) + '/receivers/' + urllib.parse.quote(key, safe='')
         request.setResponseCode(201)  # Created
         request.setHeader(b'Location', url)
         # TODO consider a more useful response
