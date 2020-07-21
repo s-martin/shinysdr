@@ -53,10 +53,10 @@ from shinysdr.values import SubscriptionContext
 def _make_static_resource(pathname):
     # str() because if we happen to pass unicode as the pathname then directory listings break (discovered with Twisted 16.4.1).
     r = static.File(str(pathname),
-        defaultType=b'text/plain',
-        ignoredExts=[b'.html'])
-    r.contentTypes[b'.csv'] = b'text/csv'
-    r.indexNames = [b'index.html']
+        defaultType='text/plain',
+        ignoredExts=['.html'])
+    r.contentTypes['.csv'] = 'text/csv'
+    r.indexNames = ['index.html']
     return r
 
 
