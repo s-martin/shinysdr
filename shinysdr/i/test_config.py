@@ -355,7 +355,7 @@ class TestConfigFiles(unittest.TestCase):
             file_obj.getvalue()
             .replace(self.__files.dir, '<tempdir>')
             .replace(__file__, '<config.py>')
-            .replace('shinysdr.i.config.ConfigException', 'ConfigException'), # Python 3 uses the full name
+            .replace('shinysdr.i.config.ConfigException', 'ConfigException'),  # Python 3 uses the full name
             textwrap.dedent("""\
                 An error occurred while executing the ShinySDR configuration file:
                   File "<tempdir>/config", line 1, in <module>
