@@ -240,7 +240,7 @@ class TestDatabasesResource(unittest.TestCase):
         # TODO: Actually parse/check-that-parses the document
         self.assertSubstring(textwrap.dedent('''\
             <li><a href="foo%26bar/">foo&amp;bar</a></li>
-        '''), data)
+        '''), six.ensure_str(data))
 
 
 class TestDatabaseResource(unittest.TestCase):

@@ -41,7 +41,7 @@ from twisted.web.http import urlparse
 # Note that gnuradio-dependent modules are loaded lazily, to avoid the startup time if all we're going to do is give a usage message
 from shinysdr.i.db import DatabaseModel, database_from_csv, databases_from_directory
 from shinysdr.i.network.base import UNIQUE_PUBLIC_CAP
-from shinysdr.i.pycompat import bytes_or_ascii, repr_no_string_tag
+from shinysdr.i.pycompat import repr_no_string_tag
 from shinysdr.i.roots import CapTable, generate_cap
 
 
@@ -127,8 +127,8 @@ class Config(object):
         self._not_finished()
         # TODO: See if we're reinventing bits of Twisted service stuff here
         
-        http_base_url = _coerce_and_validate_base_url(http_base_url, 'http_base_url', ('http', 'https'))
-        ws_base_url = _coerce_and_validate_base_url(ws_base_url, 'ws_base_url', ('ws', 'wss'), allow_path=True)
+        http_base_url = _coerce_and_validate_base_url(http_base_url, 'http_base_url', (b'http', b'https'))
+        ws_base_url = _coerce_and_validate_base_url(ws_base_url, 'ws_base_url', (b'ws', b'wss'), allow_path=True)
         
         if root_cap is not None:
             root_cap = six.text_type(root_cap)
@@ -198,11 +198,11 @@ def _coerce_and_validate_base_url(url_value, label, allowed_schemes, allow_path=
     if url_value is not None:
         url_value = str(url_value)
         
-        scheme, _netloc, path_bytes, _params, _query_bytes, _fragment = urlparse(bytes_or_ascii(url_value))
+        scheme, _netloc, path_bytes, _params, _query_bytes, _fragment = urlparse(six.ensure_binary(url_value))
         
         # Ensure that the protocol is compatible.
         if scheme.lower() not in allowed_schemes:
-            raise ConfigException('config.serve_web: {} must be a {} URL but was {}'.format(label, ' or '.join(repr_no_string_tag(s + ':') for s in allowed_schemes), repr_no_string_tag(url_value)))
+            raise ConfigException('config.serve_web: {} must be a {} URL but was {}'.format(label, ' or '.join(repr_no_string_tag(six.ensure_str(s) + ':') for s in allowed_schemes), repr_no_string_tag(url_value)))
         
         # Ensure that there are no path components. There are two reasons for this:
         # 1. The client makes use of host-relative URLs.

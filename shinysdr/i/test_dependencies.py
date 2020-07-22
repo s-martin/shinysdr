@@ -47,7 +47,7 @@ class TestDependencyTester(unittest.TestCase):
                 'The following libraries/programs are not installed correctly:\n\t<dep name>  (Check: shinysdr.i.test_dependencies_cases.imports failed to import (No module named nonexistent_module_in_dep).)\nPlease (re)install current versions.')
         else:
             self.assertEqual(self.t.report(),
-                'The following libraries/programs are not installed correctly:\n\t<dep name>  (Check: shinysdr.i.test_dependencies_cases.imports failed to import (No module named \'shinysdr.test.nonexistent_module_in_dep\').)\nPlease (re)install current versions.')
+                'The following libraries/programs are not installed correctly:\n\t<dep name>  (Check: shinysdr.i.test_dependencies_cases.imports failed to import (No module named \'shinysdr.nonexistent_module_in_dep\').)\nPlease (re)install current versions.')
     
     def test_module_broken_other(self):
         self.t.check_module('shinysdr.i.test_dependencies_cases.misc', '<dep name>')

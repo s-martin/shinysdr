@@ -115,8 +115,8 @@ __all__.append('OsmoSDRProfile')
 
 def profile_from_device_string(device_string):
     # TODO: The input is actually an "args" string, which contains multiple devices space-separated. We should support this, but it is hard because osmosdr does not export the internal args_to_vector function and parsing it ourselves would need to be escaping-aware.
-    params = {k: v for k, v in osmosdr.device_t(device_string).items()}
-    for param_key in params.iterkeys():
+    params = {k: v for k, v in osmosdr.device_t(six.ensure_str(device_string)).items()}
+    for param_key in params:
         if param_key in _default_profiles:
             # is a device of this type
             return _default_profiles[param_key]
@@ -232,7 +232,7 @@ def OsmoSDRDevice(
     if profile is None:
         profile = profile_from_device_string(osmo_device)
     
-    source = osmosdr.source(b'numchan=1 ' + osmo_device)
+    source = osmosdr.source(six.ensure_str('numchan=1 ' + osmo_device))
     if source.get_num_channels() < 1:
         # osmosdr.source doesn't throw an exception, allegedly because gnuradio can't handle it in a hier_block2 initializer. But we want to fail understandably, so recover by detecting it (sample rate = 0, which is otherwise nonsense)
         raise LookupError('OsmoSDR device not found (device string = %r)' % osmo_device)
@@ -392,7 +392,7 @@ class _OsmoSDRRXDriver(ExportedState, gr.hier_block2):
         label='Antenna')
     def get_antenna(self):
         if self.__source is None: return ''
-        return six.text_type(self.__source.get_antenna(ch), 'ascii')
+        return six.ensure_text(self.__source.get_antenna(ch), 'ascii')
     
     @setter
     def set_antenna(self, value):

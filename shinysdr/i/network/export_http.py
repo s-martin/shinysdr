@@ -204,7 +204,7 @@ class FlowgraphVizResource(Resource):
                 1: 'r',
                 2: 2
             })
-        process.pipes[0].write(self.__block.dot_graph())
+        process.pipes[0].write(self.__block.dot_graph().encode('utf-8'))
         process.pipes[0].loseConnection()
         return NOT_DONE_YET
 

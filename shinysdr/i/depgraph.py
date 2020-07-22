@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import six
+
 from twisted.internet import defer
 from twisted.internet.task import deferLater
 from twisted.logger import Logger
@@ -115,7 +117,7 @@ class Plumber(object):
     
     def _schedule_change(self, reason):
         """Internal for _ActiveFittingHolder -- asynchronously trigger a reevaluation of the graph"""
-        self.__log.debug('scheduled change ({reason})', reason=unicode(reason))
+        self.__log.debug('scheduled change ({reason})', reason=six.ensure_text(reason))
         self.__scheduled_change.start()
     
     def _mark_for_rebuild(self, fitting_factory):
@@ -153,7 +155,7 @@ class Plumber(object):
         
         self.__log.debug('CHANGE: ...completed analysis')
         
-        newly_inactive_ffs = (set(self.__active_holders.iterkeys())
+        newly_inactive_ffs = (set(self.__active_holders.keys())
             .difference(active_ffs)
             .union(self.__do_not_reuse))
         needs_configuration = newly_active_ffs or newly_inactive_ffs

@@ -207,11 +207,11 @@ class _DbIndexResource(resource.Resource):
         dbdict[rkey] = record
         self.__database.dirty()  # TODO: There is no test that this is done.
         self.__instantiate(rkey)
-        url = request.prePathURL() + str(rkey)
+        url = request.prePathURL() + six.ensure_binary(str(rkey))
         request.setResponseCode(http.CREATED)
         request.setHeader(b'Content-Type', b'text/plain')
         request.setHeader(b'Location', url)
-        return url.encode()
+        return url
 
 
 class _RecordResource(resource.Resource):

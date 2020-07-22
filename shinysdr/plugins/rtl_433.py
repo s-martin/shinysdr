@@ -97,7 +97,7 @@ class RTL433Demodulator(gr.hier_block2, ExportedState):
             args=[
                 b'env', b'rtl_433',
                 b'-F', b'json',  # output format
-                b'-r', str(demod_rate) + b'sps:iq:cf32:-',  # specify input format and to use stdin
+                b'-r', b'%dsps:iq:cf32:-' % (demod_rate),  # specify input format and to use stdin
                 b'-M', 'newmodel',
             ],
             childFDs={

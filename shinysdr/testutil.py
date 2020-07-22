@@ -505,12 +505,12 @@ def _assert_http_response_properties(test_case, response, data):
     
     if data is not None:  # not a HEAD request
         content_type = response.headers.getRawHeaders(b'Content-Type')[0]
-        if content_type in ('application/json', 'application/json; charset=utf-8'):
+        if content_type in (b'application/json', b'application/json; charset=utf-8'):
             json.loads(data)  # raises error if it doesn't parse
-        elif content_type.startswith('text/html'):
-            test_case.assertRegex(content_type, r'(?i)text/html;\s*charset=utf-8')
+        elif content_type.startswith(b'text/html'):
+            test_case.assertRegex(content_type, br'(?i)text/html;\s*charset=utf-8')
             test_case.assertRegex(data, br'(?i)<!doctype html>')
-        elif content_type in ('application/javascript', 'text/javascript', 'audio/wav'):
+        elif content_type in (b'application/javascript', b'text/javascript', b'audio/wav'):
             pass
         else:
             raise Exception('Don\'t know what content type checking to do', data[0], content_type)
