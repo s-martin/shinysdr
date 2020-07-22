@@ -32,7 +32,6 @@ from twisted.web import template
 
 from shinysdr.i.json import serialize
 from shinysdr.i.network.base import prepath_escaped, template_filepath
-from shinysdr.i.pycompat import defaultstr
 from shinysdr.values import IWritableCollection
 
 

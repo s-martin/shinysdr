@@ -76,6 +76,8 @@ def make_hybi07_frame(buf, opcode=0x1):
     # Always make a normal packet.
     header = six.int2byte(0x80 | opcode)
     return header + length + buf
+
+
 txws.make_hybi07_frame = make_hybi07_frame
 
 
