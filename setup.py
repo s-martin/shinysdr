@@ -20,6 +20,7 @@
 
 import os.path
 import subprocess
+# Python 2+3 support
 try:
     from urllib.request import urlretrieve
 except ImportError:

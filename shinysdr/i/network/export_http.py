@@ -70,11 +70,11 @@ class BlockResource(Resource):
                 if cell.type().is_reference():
                     self._blockCells[key] = cell
                 else:
-                    self.putChild(key.encode(), ValueCellResource(cell, self.__wcommon))
+                    self.putChild(key.encode('utf-8'), ValueCellResource(cell, self.__wcommon))
         self.__element = _BlockHtmlElement(wcommon)
     
     def getChild(self, path, request):
-        name = path.decode()
+        name = path.decode('utf-8')
         if self._dynamic:
             curstate = self._block.state()
             if name in curstate:
