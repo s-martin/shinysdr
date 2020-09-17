@@ -53,7 +53,7 @@ class EphemerisResource(Resource):
         y = math.cos(sun.az) * math.cos(sun.alt)
         z = -math.sin(sun.alt)
         
-        request.setHeader(b'Content-Type', b'application/json; charset=utf-8')
+        request.setHeader(b'Content-Type', b'application/json')
         return json.dumps([x, y, z]).encode('utf-8')
 
 
