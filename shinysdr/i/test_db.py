@@ -290,7 +290,7 @@ class TestDatabaseResource(unittest.TestCase):
     @defer.inlineCallbacks
     def test_index_response(self):
         response, data = yield http_get(reactor, self.__url('/'))
-        self.assertEqual(response.headers.getRawHeaders('Content-Type'), ['application/json; charset=utf-8'])
+        self.assertEqual(response.headers.getRawHeaders('Content-Type'), ['application/json'])
         j = json.loads(data)
         self.assertEqual(j, self.response_json)
 
@@ -300,7 +300,7 @@ class TestDatabaseResource(unittest.TestCase):
     @defer.inlineCallbacks
     def test_record_response(self):
         response, data = yield http_get(reactor, self.__url('/1'))
-        self.assertEqual(response.headers.getRawHeaders('Content-Type'), ['application/json; charset=utf-8'])
+        self.assertEqual(response.headers.getRawHeaders('Content-Type'), ['application/json'])
         j = json.loads(data)
         self.assertEqual(j, self.test_records[1])
 
