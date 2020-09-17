@@ -222,7 +222,7 @@ def _put_plugin_resources(wcommon, client_resource):
     client_resource.putChild(b'plugins', plugin_resources)
     for resource_def in getPlugins(_IClientResourceDef, shinysdr.plugins):
         # Add the plugin's resource to static serving
-        plugin_resources.putChild(resource_def.key.encode(), resource_def.resource)
+        plugin_resources.putChild(resource_def.key.encode('utf-8'), resource_def.resource)
         plugin_resource_url = '/client/plugins/' + urllib.parse.quote(resource_def.key, safe='') + '/'
         # Tell the client to load the plugins
         # TODO constrain path values to be relative (not on a different origin, to not leak urls)

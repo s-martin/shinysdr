@@ -41,7 +41,7 @@ class SessionResource(SlashedResource):
         self.putChild(b'', ElementRenderingResource(_RadioIndexHtmlElement(wcommon)))
         
         # Exported radio control objects
-        self.putChild(CAP_OBJECT_PATH_ELEMENT.encode(), BlockResource(session, wcommon, _not_deletable))
+        self.putChild(CAP_OBJECT_PATH_ELEMENT.encode('utf-8'), BlockResource(session, wcommon, _not_deletable))
         
         # Frequency DB
         self.putChild(b'dbs', shinysdr.i.db.DatabasesResource(read_only_dbs))
@@ -54,7 +54,7 @@ class SessionResource(SlashedResource):
         self.putChild(b'ephemeris', EphemerisResource())
         
         # Standard audio-file-over-HTTP audio stream (the ShinySDR web client uses WebSockets instead, but both have the same path modulo protocol)
-        self.putChild(AUDIO_STREAM_PATH_ELEMENT.encode(), AudioStreamResource(session))
+        self.putChild(AUDIO_STREAM_PATH_ELEMENT.encode('utf-8'), AudioStreamResource(session))
 
 
 class _RadioIndexHtmlElement(EntryPointIndexElement):
