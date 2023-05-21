@@ -21,8 +21,8 @@ GNU Radio blocks which automatically compute appropriate filter designs.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from fractions import gcd
-from math import pi, sin, cos
+#from fractions import gcd
+from math import pi, sin, cos, gcd
 
 import six
 
