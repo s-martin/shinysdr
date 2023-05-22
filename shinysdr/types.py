@@ -525,7 +525,7 @@ class BulkDataElement(namedtuple('BulkDataElement', [
 ])):
     def to_json(self):
         unpacker = array.array(defaultstr('b'))
-        unpacker.fromstring(self.data)
+        unpacker.frombytes(self.data)
         return [self.info, unpacker.tolist()]
 
 
